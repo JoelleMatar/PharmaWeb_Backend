@@ -2,14 +2,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user.js";
-import { loginValidation, signUpValidation } from "../middleware/YupValdiations.js";
+import { loginValidation, signUpBuyerValidation, signUpPharmacyValidation } from "../middleware/YupValdiations.js";
 
 export const login = async (req, res) => {
-    const { email, password, role } = req.body;
-    const validation = { email, password, role }
+    const { email, password } = req.body;
+    const validation = { email, password }
     try {
       if (await loginValidation.validate(validation)) {
-        const existingUser = await User.findOne({ email: email, role: role });
+        const existingUser = await User.findOne({ email: email });
   
         if (!existingUser) return res.status(404).json({ message: "User doesn't exist" });
   
@@ -26,12 +26,12 @@ export const login = async (req, res) => {
     }
 };
 
-export const signUp = async (req, res) => {
-    const { firstName, lastName, email, password, confirmPassword, role, phoneNumber } = req.body;
-    const validation = { firstName, lastName, email, password, confirmPassword, role, phoneNumber };
+export const signUpBuyer = async (req, res) => {
+    const { firstName, lastName, email, password, role, phoneNumber } = req.body;
+    const validation = { firstName, lastName, email, password, role, phoneNumber };
 
     try {
-        if (await signUpValidation.validate(validation)) {
+        if (await signUpBuyerValidation.validate(validation)) {
             const exsistingUser = await User.findOne({ email });
             if (exsistingUser) return res.status(400).json({ message: "User already exists" });
 
@@ -44,7 +44,7 @@ export const signUp = async (req, res) => {
                 email: email,
                 password: hashedPassword,
                 phoneNumber: phoneNumber,
-                role: role
+                role: 0
             };
 
             User.create(newUser);
@@ -58,5 +58,41 @@ export const signUp = async (req, res) => {
         res.status(500).json(error);
         console.log(error);
     }
+}
 
+export const signUpPharmacy = async (req, res) => {
+  const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions } = req.body;
+  const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions };
+
+  try {
+      if (await signUpPharmacyValidation.validate(validation)) {
+          const exsistingUser = await User.findOne({ email });
+          if (exsistingUser) return res.status(400).json({ message: "Pharmacy already exists" });
+
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(password, salt);
+
+          const newUser = {
+              pharmacyName: pharmacyName,
+              city: city,
+              email: email,
+              password: hashedPassword,
+              phoneNumber: phoneNumber,
+              registrationYear: registrationYear,
+              deliveryOptions: deliveryOptions,
+              paymentOptions: paymentOptions,
+              role: 1
+          };
+
+          User.create(newUser);
+
+          const activateToken = jwt.sign({ pharmacyName, city, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
+
+          return res.status(201).json({ result: true, activateToken, message: "Pharmacy Created Successfully!" });
+      }
+  }
+  catch (error) {
+      res.status(500).json(error);
+      console.log(error);
+  }
 }

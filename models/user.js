@@ -7,7 +7,12 @@ const userSchema = mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   phoneNumber: { type: String },
-  role: { type: Number}
+  role: { type: Number},
+  city: { type: String },
+  registrationYear: { type: Number },
+  deliveryOptions: { type: Array },
+  paymentOptions: { type: Array },
+  pharmacyLicense: { type: String }
 }, { timestamps: true });
 
 var User =  mongoose.model("User", userSchema);

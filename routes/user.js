@@ -4,10 +4,12 @@ const router = express.Router();
 
 import {
     login,
-    signUp
+    signUpBuyer,
+    signUpPharmacy
 } from "../controllers/userController";
 
 router.post("/login", login);
-router.post("/signup", signUp);
+router.post("/signup/buyer", signUpBuyer);
+router.post("/signup/pharmacy", signUpPharmacy);
 
 export default router;
