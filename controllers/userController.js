@@ -51,7 +51,7 @@ export const signUpBuyer = async (req, res) => {
 
             const activateToken = jwt.sign({ firstName, lastName, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
 
-            return res.status(201).json({ result: true, activateToken, message: "User Created Successfully!" });
+            return res.status(201).json({ result: newUser, activateToken, message: "User Created Successfully!" });
         }
     }
     catch (error) {
@@ -61,9 +61,9 @@ export const signUpBuyer = async (req, res) => {
 }
 
 export const signUpPharmacy = async (req, res) => {
-  const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions } = req.body;
-  const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions };
-
+  const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions, pharmacyLicense } = req.body;
+  const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, pharmacyLicense};
+   
   try {
       if (await signUpPharmacyValidation.validate(validation)) {
           const exsistingUser = await User.findOne({ email });
@@ -88,7 +88,7 @@ export const signUpPharmacy = async (req, res) => {
 
           const activateToken = jwt.sign({ pharmacyName, city, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
 
-          return res.status(201).json({ result: true, activateToken, message: "Pharmacy Created Successfully!" });
+          return res.status(201).json({ result: newUser, activateToken, message: "Pharmacy Created Successfully!" });
       }
   }
   catch (error) {

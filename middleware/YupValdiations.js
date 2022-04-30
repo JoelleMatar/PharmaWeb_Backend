@@ -47,10 +47,6 @@ export const signUpPharmacyValidation = Yup.object({
         .min(2, 'Too Short!')
         .max(50, 'Too Long!')
         .required('Registration Year required'),
-    deliveryOptions: Yup.array()
-        .required('Delivery Option required'),
-    paymentOptions: Yup.array()
-        .required('Payment Option required'),
     email: Yup.string()
         .email('Email must be a valid email address')
         .required('Email is required'),
