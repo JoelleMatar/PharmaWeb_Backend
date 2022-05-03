@@ -84,6 +84,8 @@ export const signUpPharmacy = async (req, res) => {
               role: 1
           };
 
+          console.log("new user", newUser);
+
           User.create(newUser);
 
           const activateToken = jwt.sign({ pharmacyName, city, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
@@ -95,4 +97,15 @@ export const signUpPharmacy = async (req, res) => {
       res.status(500).json(error);
       console.log(error);
   }
+}
+
+export const getPharmaciesList = async (req, res) => {
+    try {
+
+        const pharmacies = await User.find({ role: 1 });
+
+        return res.json({ data: pharmacies });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
 }
