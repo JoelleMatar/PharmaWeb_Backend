@@ -58,6 +58,4 @@ export const signUpPharmacyValidation = Yup.object({
         .required('Password is required'),
     confirmPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Password must match')
-
-
 });

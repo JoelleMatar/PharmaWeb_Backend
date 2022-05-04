@@ -7,6 +7,7 @@ import cors from 'cors';
 
 // Routes import
 import userRouter from "./routes/user.js";
+import productRouter from "./routes/product.js";
 
 const app = express();
 app.use(express.json({ limit: "30mb", extended: true }));
@@ -24,3 +25,4 @@ mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: tr
 
 // API routes
 app.use("/user", userRouter);
+app.use("/products", productRouter);
