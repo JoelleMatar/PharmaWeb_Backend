@@ -109,3 +109,15 @@ export const getPharmaciesList = async (req, res) => {
         res.status(404).json({ message: error.message });
     }
 }
+
+export const getPharmaciesbySearch = async (req, res) => {
+    const search = req.params.search;
+    try {
+
+        const pharmacies = await Product.find({pharmacyName: {$regex: search, $options: 'i'}});
+
+        return res.json({ data: pharmacies });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
