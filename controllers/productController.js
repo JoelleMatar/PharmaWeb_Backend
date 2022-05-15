@@ -66,9 +66,10 @@ export const getProductsbySearch = async (req, res) => {
 
 export const getPharmacyProductsbySearch = async (req, res) => {
     const search = req.params.search;
+    const pharmaId = req.params.id;
     try {
 
-        const products = await Product.find({pharmaId: req.pharmaId, productName: {$regex: search, $options: 'i'}});
+        const products = await Product.find({pharmaId: pharmaId, productName: {$regex: search, $options: 'i'}});
 
         return res.json({ data: products });
     } catch (error) {
