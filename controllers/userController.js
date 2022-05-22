@@ -110,6 +110,30 @@ export const getPharmaciesList = async (req, res) => {
     }
 }
 
+export const getUser = async (req, res) => {
+    const userId = req.params.id;
+    console.log("userid", userId)
+    try {
+
+        const user = await User.find({ _id: userId });
+
+        return res.json({ data: user });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getUsers = async (req, res) => {
+    try {
+
+        const user = await User.find({ role: 0 });
+
+        return res.json({ data: user });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
 export const getPharmaciesbySearch = async (req, res) => {
     const search = req.params.search;
     try {

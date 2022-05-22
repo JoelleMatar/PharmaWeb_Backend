@@ -1,4 +1,6 @@
+import Notification from "../models/notification.js";
 import Product from "../models/product.js";
+import RequestDrug from "../models/requestDrug.js";
 import User from "../models/user.js";
 
 export const createProduct = async (req, res) => {
@@ -53,10 +55,9 @@ export const getSearchedProductsSuggestions = async (req, res) => {
 
 export const getProductsbySearch = async (req, res) => {
     const search = req.params.search;
-    const pharmaId = req.params.id;
     try {
 
-        const products = await Product.find({pharmaId: pharmaId, productName: {$regex: search, $options: 'i'}});
+        const products = await Product.find({productName: {$regex: search, $options: 'i'}});
 
         return res.json({ data: products });
     } catch (error) {
@@ -72,6 +73,69 @@ export const getPharmacyProductsbySearch = async (req, res) => {
         const products = await Product.find({pharmaId: pharmaId, productName: {$regex: search, $options: 'i'}});
 
         return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const requestDrug = async (req, res) => {
+    const requested = req.body;
+    console.log("requested", requested);
+
+    
+    try {
+        const newRequestDrug = await RequestDrug.create(requested);
+        const notif = {
+            requestdrugId: newRequestDrug._id,
+            isRead: false,
+        }
+
+        console.log("notif", notif)
+
+        const newPharmacyNotification = await Notification.create(notif);
+        return res.status(201).json({newRequestDrug, newPharmacyNotification});
+    }
+    catch (error) {
+        return res.status(500).json(error);
+    }
+}
+
+export const getPharmacyNotifications = async (req, res) => {
+    try {
+
+        const notifications = await Notification.find({});
+
+        const requestedDrug = await RequestDrug.find({_id: notifications.map(notif => notif.requestdrugId)});
+
+        const users = await User.find({_id: requestedDrug.map(user => user.userId)});
+
+        return res.json({ data: notifications, requestedDrug, users });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getPharmacyNotification = async (req, res) => {
+    try {
+
+        const notifications = await Notification.find({_id: req.params.id});
+
+        const requestedDrug = await RequestDrug.find({_id: notifications.requestdrugId});
+
+        const users = await User.find({_id: requestedDrug.userId});
+
+        return res.json({ data: notifications, requestedDrug, users });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getRequestedDrugs = async (req, res) => {
+    try {
+
+        const requestedDrugs = await RequestDrug.find({});
+
+        return res.json({ data: requestedDrugs });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
