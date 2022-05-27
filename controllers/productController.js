@@ -30,9 +30,20 @@ export const getProducts = async (req, res) => {
 export const getPharmacyProducts = async (req, res) => {
     try {
 
-        const products = await Product.find({pharmaId: req.params.id});
+        const products = await Product.find({ pharmaId: req.params.id });
 
         return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductDetails = async (req, res) => {
+    try {
+
+        const product = await Product.find({ _id: req.params.id });
+
+        return res.json({ data: product });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -42,12 +53,12 @@ export const getSearchedProductsSuggestions = async (req, res) => {
     console.log("req.params.search", req.params.search);
     try {
 
-        const products = await Product.find({productName: req.params.search});
+        const products = await Product.find({ productName: req.params.search });
         const pharmaIds = products.map(product => product.pharmaId);
-        
-        const pharmacies = await User.find({_id: pharmaIds})
 
-        return res.json({ data: {products, pharmacies} });
+        const pharmacies = await User.find({ _id: pharmaIds })
+
+        return res.json({ data: { products, pharmacies } });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -57,7 +68,7 @@ export const getProductsbySearch = async (req, res) => {
     const search = req.params.search;
     try {
 
-        const products = await Product.find({productName: {$regex: search, $options: 'i'}});
+        const products = await Product.find({ productName: { $regex: search, $options: 'i' } });
 
         return res.json({ data: products });
     } catch (error) {
@@ -70,7 +81,7 @@ export const getPharmacyProductsbySearch = async (req, res) => {
     const pharmaId = req.params.id;
     try {
 
-        const products = await Product.find({pharmaId: pharmaId, productName: {$regex: search, $options: 'i'}});
+        const products = await Product.find({ pharmaId: pharmaId, productName: { $regex: search, $options: 'i' } });
 
         return res.json({ data: products });
     } catch (error) {
@@ -82,7 +93,7 @@ export const requestDrug = async (req, res) => {
     const requested = req.body;
     console.log("requested", requested);
 
-    
+
     try {
         const newRequestDrug = await RequestDrug.create(requested);
         const notif = {
@@ -93,7 +104,7 @@ export const requestDrug = async (req, res) => {
         console.log("notif", notif)
 
         const newPharmacyNotification = await Notification.create(notif);
-        return res.status(201).json({newRequestDrug, newPharmacyNotification});
+        return res.status(201).json({ newRequestDrug, newPharmacyNotification });
     }
     catch (error) {
         return res.status(500).json(error);
@@ -102,12 +113,15 @@ export const requestDrug = async (req, res) => {
 
 export const getPharmacyNotifications = async (req, res) => {
     try {
+        // const notifications = await Notification.find({});
+
+        // return res.json({ data: notifications });
 
         const notifications = await Notification.find({});
 
-        const requestedDrug = await RequestDrug.find({_id: notifications.map(notif => notif.requestdrugId)});
+        const requestedDrug = await RequestDrug.find({ _id: notifications.map(notif => notif.requestdrugId) });
 
-        const users = await User.find({_id: requestedDrug.map(user => user.userId)});
+        const users = await User.find({ _id: requestedDrug.map(user => user.userId) });
 
         return res.json({ data: notifications, requestedDrug, users });
     } catch (error) {
@@ -118,11 +132,18 @@ export const getPharmacyNotifications = async (req, res) => {
 export const getPharmacyNotification = async (req, res) => {
     try {
 
-        const notifications = await Notification.find({_id: req.params.id});
+        const notifications = await Notification.find({ _id: req.params.id });
+        const requestedDrug = await RequestDrug.find({ _id: notifications.requestdrugId });
+        const users = await User.find({ _id: requestedDrug.userId });
 
-        const requestedDrug = await RequestDrug.find({_id: notifications.requestdrugId});
+        const test = {
+            notification: notifications,
+            requestD: requestedDrug,
+            user: users
+        }
 
-        const users = await User.find({_id: requestedDrug.userId});
+        console.log("test", test)
+
 
         return res.json({ data: notifications, requestedDrug, users });
     } catch (error) {
@@ -133,7 +154,18 @@ export const getPharmacyNotification = async (req, res) => {
 export const getRequestedDrugs = async (req, res) => {
     try {
 
-        const requestedDrugs = await RequestDrug.find({});
+        const requestedDrugs = await RequestDrug.find({_id: req.params.id});
+
+        return res.json({ data: requestedDrugs });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getNotifRequestedDrugs = async (req, res) => {
+    try {
+
+        const requestedDrugs = await RequestDrug.find({ _id: req.body.id });
 
         return res.json({ data: requestedDrugs });
     } catch (error) {

@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProducts, getProductsbySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug } from "../controllers/productController";
+import { createProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductDetails, getProducts, getProductsbySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug } from "../controllers/productController";
 const router = express.Router();
 
 router.post("/pharmacy/add-product", createProduct);
@@ -10,8 +10,9 @@ router.get("/pharmacy/pharmacyProductsList/:id/:search", getPharmacyProductsbySe
 router.get("/pharmacy/searchedProductsSuggestions/:search", getSearchedProductsSuggestions);
 
 router.post("/request-drug", requestDrug);
-router.get("/pharmacy/requested-drug", getRequestedDrugs);
+router.get("/pharmacy/requested-drug/:id", getRequestedDrugs);
 router.get("/pharmacy/notifications", getPharmacyNotifications);
 router.get("/pharmacy/notification/:id", getPharmacyNotification);
+router.get("/:id", getProductDetails);
 
 export default router;

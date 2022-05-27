@@ -8,6 +8,7 @@ const requestDrugSchema = mongoose.Schema({
   },
   productName: { type: String, required: true },
   quantity: { type: Number, required: true },
+  message: { type: String, required: false },
 }, { timestamps: true });
 
 var RequestDrug = mongoose.model("RequestDrug", requestDrugSchema);
