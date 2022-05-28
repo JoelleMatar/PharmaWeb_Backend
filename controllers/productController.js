@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import Notification from "../models/notification.js";
 import Product from "../models/product.js";
 import RequestDrug from "../models/requestDrug.js";
 import User from "../models/user.js";
+
 
 export const createProduct = async (req, res) => {
     const post = req.body;
@@ -117,8 +119,8 @@ export const getPharmacyNotifications = async (req, res) => {
 
         // return res.json({ data: notifications });
 
-        const notifications = await Notification.find({});
-
+        const notifications = await Notification.find({}).sort({_id:-1});
+        
         const requestedDrug = await RequestDrug.find({ _id: notifications.map(notif => notif.requestdrugId) });
 
         const users = await User.find({ _id: requestedDrug.map(user => user.userId) });
@@ -132,20 +134,9 @@ export const getPharmacyNotifications = async (req, res) => {
 export const getPharmacyNotification = async (req, res) => {
     try {
 
-        const notifications = await Notification.find({ _id: req.params.id });
-        const requestedDrug = await RequestDrug.find({ _id: notifications.requestdrugId });
-        const users = await User.find({ _id: requestedDrug.userId });
+        const notification = await Notification.find({ _id: req.params.id });
 
-        const test = {
-            notification: notifications,
-            requestD: requestedDrug,
-            user: users
-        }
-
-        console.log("test", test)
-
-
-        return res.json({ data: notifications, requestedDrug, users });
+        return res.json({ data: notification });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -170,5 +161,21 @@ export const getNotifRequestedDrugs = async (req, res) => {
         return res.json({ data: requestedDrugs });
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+}
+
+export const updateIsReadNotif = async (req, res) => {
+    const { id } = req.params;
+    const updatedNotif = { isRead: true, _id: id };
+
+    console.log("updated", updatedNotif);
+    console.log("id:", id);
+
+    try {
+        await Notification.findByIdAndUpdate(id, {isRead: true}, { new: true });
+
+        return res.json(updatedNotif);
+    } catch (error) {
+        return res.status(404).send(`No notif with id: ${id}`);
     }
 }
