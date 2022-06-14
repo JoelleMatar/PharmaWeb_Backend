@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Notification from "../models/notification.js";
 import Product from "../models/product.js";
+import ListProducts from "../models/productsList.js";
 import RequestDrug from "../models/requestDrug.js";
 import User from "../models/user.js";
 
@@ -10,6 +11,7 @@ export const createProduct = async (req, res) => {
     console.log("post");
     try {
         const newPost = await Product.create(post);
+        await ListProducts.create(post);
         return res.status(201).json(newPost);
     }
     catch (error) {

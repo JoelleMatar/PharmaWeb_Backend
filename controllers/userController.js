@@ -8,21 +8,21 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const validation = { email, password }
     try {
-      if (await loginValidation.validate(validation)) {
-        const existingUser = await User.findOne({ email: email });
-  
-        if (!existingUser) return res.status(404).json({ message: "User doesn't exist" });
-  
-        const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
-  
-        if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
-  
-        const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, process.env.SECRET, { expiresIn: "24h" });
-  
-        res.status(200).json({ result: existingUser, token, message: "User Logged In Successfully!" });
-      }
+        if (await loginValidation.validate(validation)) {
+            const existingUser = await User.findOne({ email: email });
+
+            if (!existingUser) return res.status(404).json({ message: "User doesn't exist" });
+
+            const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
+
+            if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
+
+            const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, process.env.SECRET, { expiresIn: "24h" });
+
+            res.status(200).json({ result: existingUser, token, message: "User Logged In Successfully!" });
+        }
     } catch (err) {
-      res.status(500).json({ message: "Something went wrong" });
+        res.status(500).json({ message: "Something went wrong" });
     }
 };
 
@@ -61,42 +61,42 @@ export const signUpBuyer = async (req, res) => {
 }
 
 export const signUpPharmacy = async (req, res) => {
-  const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions, pharmacyLicense } = req.body;
-  const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, pharmacyLicense};
-   
-  try {
-      if (await signUpPharmacyValidation.validate(validation)) {
-          const exsistingUser = await User.findOne({ email });
-          if (exsistingUser) return res.status(400).json({ message: "Pharmacy already exists" });
+    const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions, pharmacyLicense } = req.body;
+    const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, pharmacyLicense };
 
-          const salt = await bcrypt.genSalt(10);
-          const hashedPassword = await bcrypt.hash(password, salt);
+    try {
+        if (await signUpPharmacyValidation.validate(validation)) {
+            const exsistingUser = await User.findOne({ email });
+            if (exsistingUser) return res.status(400).json({ message: "Pharmacy already exists" });
 
-          const newUser = {
-              pharmacyName: pharmacyName,
-              city: city,
-              email: email,
-              password: hashedPassword,
-              phoneNumber: phoneNumber,
-              registrationYear: registrationYear,
-              deliveryOptions: deliveryOptions,
-              paymentOptions: paymentOptions,
-              role: 1
-          };
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
 
-          console.log("new user", newUser);
+            const newUser = {
+                pharmacyName: pharmacyName,
+                city: city,
+                email: email,
+                password: hashedPassword,
+                phoneNumber: phoneNumber,
+                registrationYear: registrationYear,
+                deliveryOptions: deliveryOptions,
+                paymentOptions: paymentOptions,
+                role: 1
+            };
 
-          User.create(newUser);
+            console.log("new user", newUser);
 
-          const activateToken = jwt.sign({ pharmacyName, city, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
+            User.create(newUser);
 
-          return res.status(201).json({ result: newUser, activateToken, message: "Pharmacy Created Successfully!" });
-      }
-  }
-  catch (error) {
-      res.status(500).json(error);
-      console.log(error);
-  }
+            const activateToken = jwt.sign({ pharmacyName, city, email, password, phoneNumber }, 'activateAccount', { expiresIn: '20m' });
+
+            return res.status(201).json({ result: newUser, activateToken, message: "Pharmacy Created Successfully!" });
+        }
+    }
+    catch (error) {
+        res.status(500).json(error);
+        console.log(error);
+    }
 }
 
 export const getPharmaciesList = async (req, res) => {
@@ -138,10 +138,31 @@ export const getPharmaciesbySearch = async (req, res) => {
     const search = req.params.search;
     try {
 
-        const pharmacies = await Product.find({pharmacyName: {$regex: search, $options: 'i'}});
+        const pharmacies = await Product.find({ pharmacyName: { $regex: search, $options: 'i' } });
 
         return res.json({ data: pharmacies });
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+}
+
+export const updatePharmacy = async (req, res) => {
+    const { id } = req.params;
+    const { email, phoneNumber, city, registrationYear, pharmacyName, deliveryOptions, paymentOptions } = req.body;
+
+    const exsistingUser = await User.findOne({ email: email });
+    const user = await User.findById(id);
+
+    if (email === user.email && (pharmacyName !== user.pharmacyName || phoneNumber !== user.phoneNumber || city !== user.city || registrationYear !== user.registrationYear || deliveryOptions !== user.deliveryOptions || paymentOptions !== user.paymentOptions)) {
+
+        const updatedUser = { pharmacyName, phoneNumber, city, registrationYear, deliveryOptions, paymentOptions, _id: id };
+        const result = await User.findByIdAndUpdate(id, updatedUser, { new: true });
+
+        // const token = jwt.sign({ email: result.email, id: result._id }, secret, { expiresIn: "1h" });
+        res.status(201).json({ result, message: "Pharmacy Updated Successfully!" });
+
+    }
+    else if (email === user.email && pharmacyName === user.pharmacyName && phoneNumber === user.phoneNumber && city === user.city && registrationYear === user.registrationYear && deliveryOptions === user.deliveryOptions && paymentOptions === user.paymentOptions) {
+        return res.status(400).json({ message: "no changes were made" });
     }
 }
