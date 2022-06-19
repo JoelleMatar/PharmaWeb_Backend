@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const cartSchema = mongoose.Schema({
+const orderSchema = mongoose.Schema({
   id: { type: String },
   customerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -12,8 +12,10 @@ const cartSchema = mongoose.Schema({
   },
   quantity: { type: Number, required: true },
   deliverOption: { type: String, required: true },
+  totalPrice: { type: String },
+  status: { type: Number},
 }, { timestamps: true });
 
-var Cart = mongoose.model("Cart", cartSchema);
+var Order = mongoose.model("Order", orderSchema);
 
-export default Cart;
+export default Order;

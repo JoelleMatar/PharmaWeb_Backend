@@ -10,9 +10,14 @@ export const createProduct = async (req, res) => {
     const post = req.body;
     console.log("post");
     try {
-        const newPost = await Product.create(post);
-        await ListProducts.create(post);
-        return res.status(201).json(newPost);
+        const prodExist = await Product.findOne({ productName: post.productName, form: post.form });
+        if (prodExist) {
+            res.status(400).json({ message: "Product already exists" });
+        } else {
+            const newPost = await Product.create(post);
+            await ListProducts.create(post);
+            return res.status(201).json(newPost);
+        }
     }
     catch (error) {
         return res.status(500).json(error);
@@ -31,12 +36,27 @@ export const getProducts = async (req, res) => {
     }
 }
 
+export const getProductsLebanon = async (req, res) => {
+    try {
+
+        const products = await ListProducts.find({}).sort({ productName: 1 });
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
 export const getPharmacyProducts = async (req, res) => {
     try {
 
         const products = await Product.find({ pharmaId: req.params.id });
+        const productsName = products.map(product => product.productName);
 
-        return res.json({ data: products });
+        const generalInfo = await ListProducts.find({ productName: productsName });
+
+
+        return res.json({ data: products, generalInfo });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -72,7 +92,22 @@ export const getProductsbySearch = async (req, res) => {
     const search = req.params.search;
     try {
 
-        const products = await Product.find({ productName: { $regex: search, $options: 'i' } });
+        const products = await Product.find(
+            {
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                    {
+                        city: {
+                            $regex: search, $options: 'i'
+                        }
+                    }
+                ]
+            }
+        );
 
         return res.json({ data: products });
     } catch (error) {
@@ -80,12 +115,35 @@ export const getProductsbySearch = async (req, res) => {
     }
 }
 
+
+
 export const getPharmacyProductsbySearch = async (req, res) => {
     const search = req.params.search;
     const pharmaId = req.params.id;
     try {
 
-        const products = await Product.find({ pharmaId: pharmaId, productName: { $regex: search, $options: 'i' } });
+        let products = await Product.find(
+            {
+                pharmaId: pharmaId,
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                    {
+                        agent: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                    {
+                        laboratory: {
+                            $regex: search, $options: 'i'
+                        }
+                    }
+                ]
+            }
+        );
 
         return res.json({ data: products });
     } catch (error) {
@@ -121,8 +179,8 @@ export const getPharmacyNotifications = async (req, res) => {
 
         // return res.json({ data: notifications });
 
-        const notifications = await Notification.find({}).sort({_id:-1});
-        
+        const notifications = await Notification.find({}).sort({ _id: -1 });
+
         const requestedDrug = await RequestDrug.find({ _id: notifications.map(notif => notif.requestdrugId) });
 
         const users = await User.find({ _id: requestedDrug.map(user => user.userId) });
@@ -147,7 +205,7 @@ export const getPharmacyNotification = async (req, res) => {
 export const getRequestedDrugs = async (req, res) => {
     try {
 
-        const requestedDrugs = await RequestDrug.find({_id: req.params.id});
+        const requestedDrugs = await RequestDrug.find({ _id: req.params.id });
 
         return res.json({ data: requestedDrugs });
     } catch (error) {
@@ -174,10 +232,21 @@ export const updateIsReadNotif = async (req, res) => {
     console.log("id:", id);
 
     try {
-        await Notification.findByIdAndUpdate(id, {isRead: true}, { new: true });
+        await Notification.findByIdAndUpdate(id, { isRead: true }, { new: true });
 
         return res.json(updatedNotif);
     } catch (error) {
         return res.status(404).send(`No notif with id: ${id}`);
+    }
+}
+
+export const getProductbyName = async (req, res) => {
+    try {
+
+        const product = await ListProducts.find({ productName: req.body.productName });
+
+        return res.json({ data: product });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
     }
 }

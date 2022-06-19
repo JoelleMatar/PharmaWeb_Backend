@@ -16,6 +16,10 @@ const productSchema = mongoose.Schema({
   image: { type: String },
   description: { type: String },
   category: { type: Boolean, required: true },
+  agent: { type: String },
+  country: { type: String },
+  laboratory: { type: String },
+  code: { type: String },
 }, { timestamps: true });
 
 var Product = mongoose.model("Product", productSchema);
