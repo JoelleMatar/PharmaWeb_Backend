@@ -12,7 +12,7 @@ const orderSchema = mongoose.Schema({
   },
   quantity: { type: Number, required: true },
   deliverOption: { type: String, required: true },
-  totalPrice: { type: String },
+  totalPrice: { type: Number },
   status: { type: Number},
 }, { timestamps: true });
 

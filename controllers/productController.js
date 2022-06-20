@@ -4,6 +4,7 @@ import Product from "../models/product.js";
 import ListProducts from "../models/productsList.js";
 import RequestDrug from "../models/requestDrug.js";
 import User from "../models/user.js";
+import csvtojson from "csvtojson";
 
 
 export const createProduct = async (req, res) => {
@@ -249,4 +250,44 @@ export const getProductbyName = async (req, res) => {
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
+}
+
+
+export const uploadBulkProduct = (req, res) => {
+    // CSV file name
+    console.log("reqqqq", req.body)
+    const fileName = req.body.file;
+    var arrayToInsert = [];
+    csvtojson().fromFile(fileName).then(source => {
+        // Fetching the all data from each row
+        for (var i = 0; i < source.length; i++) {
+            var oneRow = {
+                productName: source[i]['Product Name'],
+                form: source[i]['Form'],
+                dosage: source[i]['Dosage'],
+                ingredient: source[i]['Ingredients'],
+                stock: source[i]['Stock'],
+                quantity: source[i]['Quantity'],
+                price: source[i]['Price'],
+                image: source[i]['Image'],
+                description: source[i]['Description'],
+                category: source[i]['High Dose'],
+                agent: source[i]['Agent'],
+                country: source[i]['Country'],
+                laboratory: source[i]['Laboratory'],
+                code: source[i]['Code'],
+                pharmaId: req.body.pharmaId
+            };
+            arrayToInsert.push(oneRow);
+        }
+        console.log("csvvv", arrayToInsert)
+        // inserting into the table Product
+        Product.insertMany(arrayToInsert, (err, result) => {
+            if (err) console.log(err);
+            if (result) {
+                console.log('Import CSV into database successfully.');
+            }
+        });
+    });
+    
 }

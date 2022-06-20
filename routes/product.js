@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsbySearch, getProductsLebanon, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif } from "../controllers/productController";
+import { createProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsbySearch, getProductsLebanon, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, uploadBulkProduct } from "../controllers/productController";
 const router = express.Router();
 
 router.post("/pharmacy/add-product", createProduct);
@@ -17,5 +17,6 @@ router.get("/pharmacy/notification/:id", getPharmacyNotification);
 router.get("/:id", getProductDetails);
 router.patch('/pharmacy-notif/:id', updateIsReadNotif);
 router.get("/pharmacy/prod-name", getProductbyName);
+router.post("/pharmacy/bulk-upload", uploadBulkProduct);
 
 export default router;
