@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Order from "../models/cart.js";
 import Product from "../models/product.js";
 import User from "../models/user.js";
+import { ObjectId } from "bson";
 
 export const createCart = async (req, res) => {
     const cart = req.body;
@@ -74,17 +75,92 @@ export const deleteOrderItem = async (req, res) => {
 }
 
 export const updateOrderCheckout = async (req, res) => {
-   
+
     const carts = req.body;
-     console.log("req.body", carts);
+    console.log("req.body", carts);
     try {
-        carts.map(async(cart) => {
+        carts.map(async (cart) => {
             const order = await Order.findByIdAndUpdate(cart, { status: 2 });
         })
 
         return res.json({ success: true, message: "Order updated successfully", carts });
     }
-    catch(err) {
+    catch (err) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getLoggedPharmacyOrders = async (req, res) => {
+    console.log("loggedpharma", req.params.pharmaId);
+
+    try {
+        const products = await Product.find({ pharmaId: req.params.pharmaId });
+
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) });
+
+        const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
+
+        return res.json({ success: true, products, cartPharma, customers });
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+export const getLoggedPharmacyOrdersbySearch = async (req, res) => {
+    const search = req.params.search;
+    console.log("search", search)
+    const pharmaId = req.params.pharmaId;
+    try {
+        const products = await Product.find(
+            {
+                pharmaId: pharmaId,
+                productName: {
+                    $regex: search, $options: 'i'
+                }
+            }
+        );
+
+        const cartPharma = await Order.find(
+            {
+                status: { $ne: 1 },
+                productId: products.map(prod => ObjectId(prod._id).str),
+                $or: [
+                    {
+                        deliverOption: {
+                            $regex: search, $options: 'i'
+                        }
+                    }
+                ]
+            }
+        );
+
+        console.log("search", search, pharmaId, products, cartPharma)
+        const customers = await User.find(
+            {
+                _id: cartPharma.map(cart => cart.customerId),
+                $or: [
+                    {
+                        firstName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                    {
+                        lastName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                    {
+                        pharmacyName: {
+                            $regex: search, $options: 'i'
+                        }
+                    }
+                ]
+            }
+        );
+
+        return res.json({ success: true, products, cartPharma, customers });
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 }
