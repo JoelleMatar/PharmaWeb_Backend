@@ -8,8 +8,9 @@ export const createCart = async (req, res) => {
     const cart = req.body;
     console.log("cart", cart);
 
-    const product = await Product.findById(cart.productId);
+
     try {
+        const product = await Product.findById(cart.productId);
         const loggedUserHasOrder = await Order.find({ customerId: cart.customerId });
         console.log("loggedUserHasOrder", loggedUserHasOrder);
         if (loggedUserHasOrder.length > 0) {
@@ -70,7 +71,7 @@ export const deleteOrderItem = async (req, res) => {
         return res.json({ success: true, message: "Order deleted successfully" });
     }
     catch (err) {
-        res.status(404).json({ message: error.message });
+        res.status(404).json({ message: err.message });
     }
 }
 
@@ -79,14 +80,17 @@ export const updateOrderCheckout = async (req, res) => {
     const carts = req.body;
     console.log("req.body", carts);
     try {
-        carts.map(async (cart) => {
-            const order = await Order.findByIdAndUpdate(cart, { status: 2 });
+        console.log("ress", req.body.prescriptione.prescription)
+        carts?.formData?.map(async (cart, index) => {
+            const order = await Order.findByIdAndUpdate(cart, { status: 2, prescription: req.body.prescription[index].prescription });
         })
+
+
 
         return res.json({ success: true, message: "Order updated successfully", carts });
     }
     catch (err) {
-        res.status(404).json({ message: error.message });
+        res.status(404).json({ message: err.message });
     }
 }
 
@@ -112,7 +116,7 @@ export const getLoggedPharmacyOrdersbySearch = async (req, res) => {
     console.log("search", search)
     const pharmaId = req.params.pharmaId;
     try {
-        const products = await Product.find(
+        let products = await Product.find(
             {
                 pharmaId: pharmaId,
                 productName: {
@@ -121,6 +125,47 @@ export const getLoggedPharmacyOrdersbySearch = async (req, res) => {
             }
         );
 
+        if (products.length === 0) {
+            products = await Product.find({ pharmaId: req.params.pharmaId });
+
+            const cartPharma = await Order.find(
+                {
+                    status: { $ne: 1 },
+                    productId: products.map(prod => ObjectId(prod._id).str),
+                    $or: [
+                        {
+                            deliverOption: {
+                                $regex: search, $options: 'i'
+                            }
+                        }
+                    ]
+                }
+            );
+
+            console.log("search", search, pharmaId, products, cartPharma)
+            const customers = await User.find(
+                {
+                    _id: cartPharma.map(cart => cart.customerId),
+                    $or: [
+                        {
+                            firstName: {
+                                $regex: search, $options: 'i'
+                            }
+                        },
+                        {
+                            lastName: {
+                                $regex: search, $options: 'i'
+                            }
+                        },
+                        {
+                            pharmacyName: {
+                                $regex: search, $options: 'i'
+                            }
+                        }
+                    ]
+                }
+            );
+        }
         const cartPharma = await Order.find(
             {
                 status: { $ne: 1 },
@@ -162,5 +207,23 @@ export const getLoggedPharmacyOrdersbySearch = async (req, res) => {
         return res.json({ success: true, products, cartPharma, customers });
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+}
+
+
+export const updateOrderStatus = async (req, res) => {
+
+    console.log("req.body", req.body, req.params);
+    try {
+        const order = await Order.updateOne({ _id: req.params.id },
+            {
+                $set: {
+                    status: req.body.status
+                }
+            })
+        return res.json({ success: true, message: "Order status updated successfully", order });
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
     }
 }

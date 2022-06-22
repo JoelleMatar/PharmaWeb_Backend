@@ -291,3 +291,13 @@ export const uploadBulkProduct = (req, res) => {
     });
     
 }
+
+export const deleteProduct = async(req, res) => {
+    try {
+        const deleteprod = await Product.findByIdAndDelete(req.params.id);
+
+        return res.json({success: true, message: 'Product deleted successfully'})
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+}

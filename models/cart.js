@@ -14,6 +14,7 @@ const orderSchema = mongoose.Schema({
   deliverOption: { type: String, required: true },
   totalPrice: { type: Number },
   status: { type: Number},
+  prescription: { type: String,}
 }, { timestamps: true });
 
 var Order = mongoose.model("Order", orderSchema);
