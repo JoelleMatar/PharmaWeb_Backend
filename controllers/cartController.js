@@ -3,6 +3,7 @@ import Order from "../models/cart.js";
 import Product from "../models/product.js";
 import User from "../models/user.js";
 import { ObjectId } from "bson";
+import Logs from "../models/logs.js";
 
 export const createCart = async (req, res) => {
     const cart = req.body;
@@ -25,7 +26,17 @@ export const createCart = async (req, res) => {
                     cart.status = 1;
                     cart.totalPrice = cart.quantity * product.price;
                     const newCart = Order.create(cart);
-                    return res.status(201).json(newCart);
+
+                    // const logsData = {
+                    //     previousStock: product.stock,
+                    //     currentStock: product.stock - cart.quantity,
+                    //     productName: product.productName,
+                    //     type: "Item Purchased"
+                    // }
+
+                    // const newLog = await Logs.create(logsData)
+
+                    return res.status(201).json({ newCart });
                 }
 
             })
@@ -80,9 +91,8 @@ export const updateOrderCheckout = async (req, res) => {
     const carts = req.body;
     console.log("req.body", carts);
     try {
-        console.log("ress", req.body.prescriptione.prescription)
         carts?.formData?.map(async (cart, index) => {
-            const order = await Order.findByIdAndUpdate(cart, { status: 2, prescription: req.body.prescription[index].prescription });
+            const order = await Order.findByIdAndUpdate(cart, { status: 2 });
         })
 
 
@@ -212,15 +222,41 @@ export const getLoggedPharmacyOrdersbySearch = async (req, res) => {
 
 
 export const updateOrderStatus = async (req, res) => {
-
     console.log("req.body", req.body, req.params);
     try {
+        //update order status
         const order = await Order.updateOne({ _id: req.params.id },
             {
                 $set: {
                     status: req.body.status
                 }
             })
+
+        //add log of type purchase item to keep track of product stock
+        if (req.body.status === 3 || req.body.status === 4) {
+
+            const orderDetail = await Order.findById(req.params.id);
+            const product = await Product.findById(orderDetail.productId);
+            console.log("prodddd", product);
+            const logsData = {
+                previousStock: product.stock,
+                currentStock: product.stock - orderDetail.quantity,
+                productName: product.productName,
+                pharmaId: product.pharmaId,
+                type: "Item Purchased"
+            }
+            const newLog = await Logs.create(logsData)
+
+            //update product stock after order was delivered or pickedup
+            const updateProductStock = await Product.updateOne({ _id: orderDetail.productId },
+                {
+                    $set: {
+                        stock: product.stock - orderDetail.quantity
+                    }
+                })
+
+
+        }
         return res.json({ success: true, message: "Order status updated successfully", order });
     }
     catch (err) {
