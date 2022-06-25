@@ -13,34 +13,42 @@ export const createCart = async (req, res) => {
     try {
         const product = await Product.findById(cart.productId);
         const loggedUserHasOrder = await Order.find({ customerId: cart.customerId });
-        console.log("loggedUserHasOrder", loggedUserHasOrder);
+        const loggedUserHasOrderSameProductNotDelivered = await Order.find({
+            customerId: cart.customerId,
+            productId: cart.productId,
+            status: { $nin: [1, 3, 4] }
+        });
+        const loggedUserHasOrderInCart = await Order.find({
+            customerId: cart.customerId,
+            productId: cart.productId,
+            status: { $eq: 1 }
+        });
+
+        console.log("loggedUserHasOrder", loggedUserHasOrderSameProductNotDelivered.length);
+        loggedUserHasOrderSameProductNotDelivered.map(order => {
+            console.log("order status ", order.status)
+        })
         if (loggedUserHasOrder.length > 0) {
-            loggedUserHasOrder?.map(order => {
-                if (order.productId.toString() === cart.productId.toString() && order.status !== 3 && order.status !== 4) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "You already have this product in your cart"
-                    });
-                }
-                else {
-                    cart.status = 1;
-                    cart.totalPrice = cart.quantity * product.price;
-                    const newCart = Order.create(cart);
+            console.log("yessss has order")
+            if (loggedUserHasOrderInCart.length > 0) {
+                console.log("yessss has order in cartt")
+                return res.status(400).json({
+                    success: false,
+                    message: "You already have this product in your cart"
+                });
+            }
+            else if (loggedUserHasOrderSameProductNotDelivered.length > 0) {
+                console.log("yessss has order but can add new")
+                cart.status = 1;
+                cart.totalPrice = cart.quantity * product.price;
+                const newCart = await Order.create(cart);
 
-                    // const logsData = {
-                    //     previousStock: product.stock,
-                    //     currentStock: product.stock - cart.quantity,
-                    //     productName: product.productName,
-                    //     type: "Item Purchased"
-                    // }
+                return res.status(201).json({ newCart });
+            }
 
-                    // const newLog = await Logs.create(logsData)
-
-                    return res.status(201).json({ newCart });
-                }
-
-            })
-        } else {
+        }
+        else {
+            console.log("noooo order")
             cart.status = 1;
             cart.totalPrice = cart.quantity * product.price;
             const newCart = Order.create(cart);
@@ -110,7 +118,7 @@ export const getLoggedPharmacyOrders = async (req, res) => {
     try {
         const products = await Product.find({ pharmaId: req.params.pharmaId });
 
-        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({createdAt: -1});
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({ createdAt: -1 });
 
         const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
 
