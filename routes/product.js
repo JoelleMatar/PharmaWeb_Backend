@@ -1,9 +1,18 @@
 import express from "express";
-import { createProduct, deleteProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsbySearch, getProductsLebanon, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, uploadBulkProduct } from "../controllers/productController";
+import { createProduct, deleteProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsAscendingbySearch, getProductsAscendingOrder, getProductsbySearch, getProductsDescendingbySearch, getProductsDescendingOrder, getProductsHighPrice, getProductsHighPricebySearch, getProductsLebanon, getProductsLowPrice, getProductsLowPricebySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, uploadBulkProduct } from "../controllers/productController";
 const router = express.Router();
 
 router.post("/pharmacy/add-product", createProduct);
 router.get("/pharmacy/productsList", getProducts);
+router.get("/pharmacy/productsList-ascending", getProductsAscendingOrder);
+router.get("/pharmacy/productsList-ascending/:search", getProductsAscendingbySearch);
+router.get("/pharmacy/productsList-descending/:search", getProductsDescendingbySearch);
+router.get("/pharmacy/productsList-descending", getProductsDescendingOrder);
+router.get("/pharmacy/productsList-highprice", getProductsHighPrice);
+router.get("/pharmacy/productsList-highprice/:search", getProductsHighPricebySearch);
+router.get("/pharmacy/productsList-lowprice", getProductsLowPrice);
+router.get("/pharmacy/productsList-lowprice/:search", getProductsLowPricebySearch);
+
 router.get("/pharmacy/productsLebanon", getProductsLebanon);
 router.get("/pharmacy/productsList/:search", getProductsbySearch);
 router.get("/pharmacy/pharmacyProductsList/:id", getPharmacyProducts);

@@ -37,6 +37,142 @@ export const getProducts = async (req, res) => {
     }
 }
 
+export const getProductsAscendingOrder = async (req, res) => {
+    try {
+
+        const products = await Product.find({}).sort({productName: 1});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsAscendingbySearch = async (req, res) => {
+    const search = req.params.search;
+    try {
+
+        let products = await Product.find(
+            {
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                ]
+            }
+        ).sort({productName: 1});
+
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsDescendingOrder = async (req, res) => {
+    try {
+
+        const products = await Product.find({}).sort({productName: -1});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsDescendingbySearch = async (req, res) => {
+    const search = req.params.search;
+    try {
+
+        let products = await Product.find(
+            {
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                ]
+            }
+        ).sort({productName: -1});
+
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsHighPrice = async (req, res) => {
+    try {
+
+        const products = await Product.find({}).sort({price: -1});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsLowPrice = async (req, res) => {
+    try {
+
+        const products = await Product.find({}).sort({price: 1});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsHighPricebySearch = async (req, res) => {
+    const search = req.params.search;
+    try {
+
+        let products = await Product.find(
+            {
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                ]
+            }
+        ).sort({price: -1});
+
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsLowPricebySearch = async (req, res) => {
+    const search = req.params.search;
+    try {
+
+        let products = await Product.find(
+            {
+                $or: [
+                    {
+                        productName: {
+                            $regex: search, $options: 'i'
+                        }
+                    },
+                ]
+            }
+        ).sort({price: 1});
+
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
 export const getProductsLebanon = async (req, res) => {
     try {
 
@@ -93,7 +229,7 @@ export const getProductsbySearch = async (req, res) => {
     const search = req.params.search;
     try {
 
-        const products = await Product.find(
+        let products = await Product.find(
             {
                 $or: [
                     {
@@ -101,14 +237,10 @@ export const getProductsbySearch = async (req, res) => {
                             $regex: search, $options: 'i'
                         }
                     },
-                    {
-                        city: {
-                            $regex: search, $options: 'i'
-                        }
-                    }
                 ]
             }
         );
+
 
         return res.json({ data: products });
     } catch (error) {

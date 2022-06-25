@@ -38,7 +38,7 @@ export const getLogs = async (req, res) => {
 
     try {
 
-        const logs = await Logs.find({ pharmaId: req.params.id });
+        const logs = await Logs.find({ pharmaId: req.params.id }).sort({ createdAt: -1 });
 
         return res.json({ data: logs });
     } catch (error) {

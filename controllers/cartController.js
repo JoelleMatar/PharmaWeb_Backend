@@ -110,7 +110,7 @@ export const getLoggedPharmacyOrders = async (req, res) => {
     try {
         const products = await Product.find({ pharmaId: req.params.pharmaId });
 
-        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) });
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({createdAt: -1});
 
         const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
 
