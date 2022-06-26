@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/user.js";
 import { loginValidation, signUpBuyerValidation, signUpPharmacyValidation } from "../middleware/YupValdiations.js";
+import DonateDrug from "../models/donateDrug.js";
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -164,5 +165,27 @@ export const updatePharmacy = async (req, res) => {
     }
     else if (email === user.email && pharmacyName === user.pharmacyName && phoneNumber === user.phoneNumber && city === user.city && registrationYear === user.registrationYear && deliveryOptions === user.deliveryOptions && paymentOptions === user.paymentOptions) {
         return res.status(400).json({ message: "no changes were made" });
+    }
+}
+
+export const donateDrug = async (req, res) => {
+    const donated = req.body;
+    console.log("donated", donated);
+
+
+    try {
+        const newDonateDrug = await DonateDrug.create(donated);
+        // const notif = {
+        //     requestdrugId: newRequestDrug._id,
+        //     isRead: false,
+        // }
+
+        // console.log("notif", notif)
+
+        // const newPharmacyNotification = await Notification.create(notif);
+        return res.status(201).json({ newDonateDrug });
+    }
+    catch (error) {
+        return res.status(500).json(error);
     }
 }

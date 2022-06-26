@@ -387,51 +387,12 @@ export const getProductbyName = async (req, res) => {
 }
 
 
-// export const uploadBulkProduct = (req, res) => {
-//     // CSV file name
-//     console.log("reqqqq", req.pharmaId)
-//     const fileName = req.file.path;
-//     var arrayToInsert = [];
-//     csvtojson().fromFile(fileName).then(source => {
-//         // Fetching the all data from each row
-//         for (var i = 0; i < source.length; i++) {
-//             var oneRow = {
-//                 productName: source[i]['Product Name'],
-//                 form: source[i]['Form'],
-//                 dosage: source[i]['Dosage'],
-//                 ingredient: source[i]['Ingredients'],
-//                 stock: source[i]['Stock'],
-//                 quantity: source[i]['Quantity'],
-//                 price: source[i]['Price'],
-//                 image: source[i]['Image'],
-//                 description: source[i]['Description'],
-//                 category: source[i]['High Dose'],
-//                 agent: source[i]['Agent'],
-//                 country: source[i]['Country'],
-//                 laboratory: source[i]['Laboratory'],
-//                 code: source[i]['Code'],
-//                 pharmaId: req.body.pharmaId
-//             };
-//             arrayToInsert.push(oneRow);
-//         }
-//         console.log("csvvv", arrayToInsert)
-//         // inserting into the table Product
-//         Product.insertMany(arrayToInsert, (err, result) => {
-//             if (err) console.log(err);
-//             if (result) {
-//                 return res.json({ success: true, message: 'Bulk Upload was successful', data: arrayToInsert });
-//                 // console.log('Import CSV into database successfully.');
-//             }
-//         });
-//     });
-
-// }
-
 export const uploadBulkProduct = (req, res) => {
     const filedata = req.file;
     console.log("filedata", filedata)
     var arrayToInsert = [];
     var category;
+    var form;
     csvtojson({ "delimiter": ",", "fork": true }).fromFile(filedata.path).then(source => {
         // Fetching the all data from each row
         for (var i = 0; i < source.length; i++) {
@@ -471,108 +432,6 @@ export const uploadBulkProduct = (req, res) => {
         });
     });
 
-
-    // let stream = fs.createReadStream(filedata.path);
-    // let csvData = [];
-    // let csvStream = fastcsv
-    //     .parse()
-    //     .on("data", function (data) {
-    //         csvData.push({
-    //             productName: data[0],
-    //             form: data[1],
-    //             dosage: data[2],
-    //             ingredient: data[3],
-    //             stock: data[4],
-    //             price: data[5],
-    //             quantity: data[6],
-    //             image: data[7],
-    //             description: data[8],
-    //             category: data[9],
-    //             agent: data[10],
-    //             country: data[11],
-    //             laboratory: data[12],
-    //             code: data[13],
-    //             pharmaId: req.params.id
-    //         });
-    //     })
-    //     .on("end", function () {
-    //         // remove the first line: header
-    //         csvData.shift();
-    //         console.log(csvData);
-    //         Product.insertMany(csvData, (err, res) => {
-    //             if (err) throw err;
-    //             console.log(`Inserted: ${res.insertedCount} rows`);
-    //             client.close();
-    //         });
-
-    //     });
-    // stream.pipe(csvStream);
-
-    // csv()
-    //     .fromFile(filedata.path)
-    //     .then((jsonObj) => {
-    //         console.log(jsonObj);
-    //         //the jsonObj will contain all the data in JSONFormat.
-    //         //but we want columns Test1,Test2,Test3,Test4,Final data as number .
-    //         //becuase we set the dataType of these fields as Number in our mongoose.Schema(). 
-    //         //here we put a for loop and change these column value in number from string using parseFloat(). 
-    //         //here we use parseFloat() beause because these fields contain the float values.
-    //         for (var x = 0; x < jsonObj; x++) {
-    //             temp = jsonObj[x].productName
-    //             jsonObj[x].productName = temp;
-
-    //             temp = jsonObj[x].form
-    //             jsonObj[x].form = temp;
-
-    //             temp = jsonObj[x].dosage
-    //             jsonObj[x].dosage = temp;
-
-    //             temp = jsonObj[x].ingredient
-    //             jsonObj[x].ingredient = temp;
-
-    //             temp = jsonObj[x].stock
-    //             jsonObj[x].stock = temp;
-
-    //             temp = jsonObj[x].price
-    //             jsonObj[x].price = temp;
-
-    //             temp = jsonObj[x].quantity
-    //             jsonObj[x].quantity = temp;
-
-    //             temp = jsonObj[x].image
-    //             jsonObj[x].image = temp;
-
-    //             temp = jsonObj[x].description
-    //             jsonObj[x].description = temp;
-
-    //             temp = jsonObj[x].category
-    //             jsonObj[x].category = temp;
-
-    //             temp = jsonObj[x].agent
-    //             jsonObj[x].agent = temp;
-
-    //             temp = jsonObj[x].country
-    //             jsonObj[x].country = temp;
-
-    //             temp = jsonObj[x].laboratory
-    //             jsonObj[x].laboratory = temp;
-
-    //             temp = jsonObj[x].code
-    //             jsonObj[x].code = temp;
-
-    //             jsonObj[x].pharmaId = req.params.id
-
-    //         }
-    //         //insertmany is used to save bulk data in database.
-    //         //saving the data in collection(table)
-    //         csvModel.insertMany(jsonObj, (err, data) => {
-    //             if (err) {
-    //                 console.log(err);
-    //             } else {
-    //                 return res.json({ success: true, message: 'Bulk Upload was successful', data: jsonObj });
-    //             }
-    //         });
-    //     });
 }
 
 

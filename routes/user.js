@@ -3,6 +3,7 @@ import express from "express";
 const router = express.Router();
 
 import {
+    donateDrug,
     getPharmaciesList,
     getUser,
     getUsers,
@@ -18,6 +19,7 @@ router.post("/signup/pharmacy", signUpPharmacy);
 router.get("/pharmaciesList", getPharmaciesList);
 router.get("/:id", getUser);
 router.get("/", getUsers);
+router.post("/donate-drug", donateDrug);
 router.patch("/updatePharmacy/:id", updatePharmacy);
 
 export default router;

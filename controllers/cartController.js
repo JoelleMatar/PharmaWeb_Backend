@@ -45,6 +45,13 @@ export const createCart = async (req, res) => {
 
                 return res.status(201).json({ newCart });
             }
+            else {
+                console.log("new orderr")
+                cart.status = 1;
+                cart.totalPrice = cart.quantity * product.price;
+                const newCart = Order.create(cart);
+                return res.status(201).json(newCart);
+            }
 
         }
         else {
@@ -119,6 +126,28 @@ export const getLoggedPharmacyOrders = async (req, res) => {
         const products = await Product.find({ pharmaId: req.params.pharmaId });
 
         const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({ createdAt: -1 });
+
+        const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
+
+        return res.json({ success: true, products, cartPharma, customers });
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+
+export const getLoggedPharmacyOrdersToday = async (req, res) => {
+    console.log("loggedpharma", req.params.pharmaId);
+    const today = new Date();
+    const todayiso = today.toISOString();
+    const day = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+    console.log("today", today.toISOString(), day)
+
+    try {
+        const products = await Product.find({ pharmaId: req.params.pharmaId });
+
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id), createdAt: { $gt: day} }).sort({ createdAt: -1 });
 
         const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
 
@@ -282,7 +311,7 @@ export const updateOrderPrescription = async (req, res) => {
                 }
             })
 
-            // const order = Order.findById(req.body.cartId)
+        // const order = Order.findById(req.body.cartId)
         return res.json({ success: true, message: "Order prescrition added successfully" });
     }
     catch (error) {
