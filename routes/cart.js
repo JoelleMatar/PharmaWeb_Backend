@@ -1,5 +1,5 @@
 import express from "express";
-import { createCart, deleteOrderItem, getCustomerCart, getCustomerCartUnconfirmed, updateOrderCheckout, getLoggedPharmacyOrders, getLoggedPharmacyOrdersbySearch, updateOrderStatus } from "../controllers/cartController";
+import { createCart, deleteOrderItem, getCustomerCart, getCustomerCartUnconfirmed, updateOrderCheckout, getLoggedPharmacyOrders, getLoggedPharmacyOrdersbySearch, updateOrderStatus, updateOrderPrescription } from "../controllers/cartController";
 const router = express.Router();
 
 router.post("/create-cart", createCart);
@@ -10,6 +10,7 @@ router.patch("/update-status-confirmation", updateOrderCheckout);
 router.get("/pharmacy-orders/:pharmaId", getLoggedPharmacyOrders);
 router.get("/pharmacy/search-order/:pharmaId/:search", getLoggedPharmacyOrdersbySearch);
 router.patch("/update-cart-status/:id", updateOrderStatus);
+router.patch("/add-prescription", updateOrderPrescription);
 
 
 export default router;

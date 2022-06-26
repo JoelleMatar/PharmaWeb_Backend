@@ -271,3 +271,21 @@ export const updateOrderStatus = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 }
+
+export const updateOrderPrescription = async (req, res) => {
+    // console.log("req.body", req.body)
+    try {
+        const updatePrescription = await Order.updateOne({ _id: req.body.cartId },
+            {
+                $set: {
+                    prescription: req.body.prescription
+                }
+            })
+
+            // const order = Order.findById(req.body.cartId)
+        return res.json({ success: true, message: "Order prescrition added successfully" });
+    }
+    catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}

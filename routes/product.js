@@ -1,6 +1,17 @@
 import express from "express";
-import { createProduct, deleteProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsAscendingbySearch, getProductsAscendingOrder, getProductsbySearch, getProductsDescendingbySearch, getProductsDescendingOrder, getProductsHighPrice, getProductsHighPricebySearch, getProductsLebanon, getProductsLowPrice, getProductsLowPricebySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, uploadBulkProduct } from "../controllers/productController";
+import { createProduct, deleteProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsAscendingbySearch, getProductsAscendingOrder, getProductsbySearch, getProductsDescendingbySearch, getProductsDescendingOrder, getProductsHighPrice, getProductsHighPricebySearch, getProductsLebanon, getProductsLowPrice, getProductsLowPricebySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, updateProductDetails, uploadBulkProduct } from "../controllers/productController";
 const router = express.Router();
+import multer from "multer";
+
+const storage = multer.diskStorage({
+    destination (req, file, cb) {
+        cb(null, 'storage/uploads');
+    },
+    filename (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+const upload = multer({storage});
 
 router.post("/pharmacy/add-product", createProduct);
 router.get("/pharmacy/productsList", getProducts);
@@ -26,6 +37,9 @@ router.get("/pharmacy/notification/:id", getPharmacyNotification);
 router.get("/:id", getProductDetails);
 router.patch('/pharmacy-notif/:id', updateIsReadNotif);
 router.get("/pharmacy/prod-name", getProductbyName);
-router.post("/pharmacy/bulk-upload", uploadBulkProduct);
-router.delete("/pharmacy/delete-product/:id", deleteProduct)
+router.post("/pharmacy/bulk-upload/:id", upload.single('file'), uploadBulkProduct);
+router.delete("/pharmacy/delete-product/:id", deleteProduct);
+router.patch('/pharmacy/productsList/:id', updateProductDetails);
+
+
 export default router;

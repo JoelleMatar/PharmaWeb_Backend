@@ -10,11 +10,13 @@ import userRouter from "./routes/user.js";
 import productRouter from "./routes/product.js";
 import cartRouter from "./routes/cart.js";
 import logsRouter from "./routes/logs.js";
-
+import bodyParser from "body-parser";
 
 const app = express();
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 
 // Database Connectivity
