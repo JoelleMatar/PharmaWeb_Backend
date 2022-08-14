@@ -107,12 +107,30 @@ export const updateOrderCheckout = async (req, res) => {
     console.log("req.body", carts);
     try {
         carts?.formData?.map(async (cart, index) => {
-            const order = await Order.findByIdAndUpdate(cart, { status: 2 });
+            console.log("ejjjkjk", cart)
+            const orderdets = await Order.findById(cart);
+            const customerOrders = await Order.find({ customerId: orderdets.customerId })
+            // console.log("customerOrders", customerOrders)
+
+            const userOrders = [];
+            customerOrders.map(order => {
+                console.log("orderdaaa", order.updatedAt.toLocaleString().split(',')[0])
+                userOrders.push(order.updatedAt.toLocaleString().split(',')[0])
+            })
+            // console.log("orderdate", userOrders)
+
+            const d = new Date()
+            if (!userOrders.includes(d.toLocaleString().split(',')[0])) {
+                const order = await Order.findByIdAndUpdate(cart, { status: 2 });
+                return res.json({ success: true, message: "Order updated successfully", order });
+            }
+            else {
+                return res.json({ success: false, message: "You have already made a purchase today" });
+            }
         })
 
 
 
-        return res.json({ success: true, message: "Order updated successfully", carts });
     }
     catch (err) {
         res.status(404).json({ message: err.message });
@@ -147,7 +165,7 @@ export const getLoggedPharmacyOrdersToday = async (req, res) => {
     try {
         const products = await Product.find({ pharmaId: req.params.pharmaId });
 
-        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id), createdAt: { $gt: day} }).sort({ createdAt: -1 });
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id), createdAt: { $gt: day } }).sort({ createdAt: -1 });
 
         const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
 
