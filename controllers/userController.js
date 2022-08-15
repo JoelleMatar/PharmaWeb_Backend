@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { loginValidation, signUpBuyerValidation, signUpPharmacyValidation } from "../middleware/YupValdiations.js";
 import DonateDrug from "../models/donateDrug.js";
+import Order from "../models/cart.js";
+import Product from "../models/product.js";
+import BuyerNotification from "../models/buyerNotification.js";
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -149,12 +152,12 @@ export const getPharmaciesbySearch = async (req, res) => {
 
 export const updatePharmacy = async (req, res) => {
     const { id } = req.params;
-    const { email, phoneNumber, city, registrationYear, pharmacyName, deliveryOptions, paymentOptions } = req.body;
+    const { email, phoneNumber, city, registrationYear, pharmacyName, deliveryOptions, paymentOptions, firstName, lastName } = req.body;
 
     const exsistingUser = await User.findOne({ email: email });
     const user = await User.findById(id);
 
-    if (email === user.email && (pharmacyName !== user.pharmacyName || phoneNumber !== user.phoneNumber || city !== user.city || registrationYear !== user.registrationYear || deliveryOptions !== user.deliveryOptions || paymentOptions !== user.paymentOptions)) {
+    if (user.role == 1 && email === user.email && (pharmacyName !== user.pharmacyName || phoneNumber !== user.phoneNumber || city !== user.city || registrationYear !== user.registrationYear || deliveryOptions !== user.deliveryOptions || paymentOptions !== user.paymentOptions)) {
 
         const updatedUser = { pharmacyName, phoneNumber, city, registrationYear, deliveryOptions, paymentOptions, _id: id };
         const result = await User.findByIdAndUpdate(id, updatedUser, { new: true });
@@ -162,6 +165,13 @@ export const updatePharmacy = async (req, res) => {
         // const token = jwt.sign({ email: result.email, id: result._id }, secret, { expiresIn: "1h" });
         res.status(201).json({ result, message: "Pharmacy Updated Successfully!" });
 
+    }
+    else if (user.role == 0 && email === user.email && (phoneNumber !== user.phoneNumber || firstName !== user.firstName || lastName !== user.lastName)) {
+        const updatedUser = { firstName, phoneNumber, lastName, _id: id };
+        const result = await User.findByIdAndUpdate(id, updatedUser, { new: true });
+
+        // const token = jwt.sign({ email: result.email, id: result._id }, secret, { expiresIn: "1h" });
+        res.status(201).json({ result, message: "Buyer Updated Successfully!" });
     }
     else if (email === user.email && pharmacyName === user.pharmacyName && phoneNumber === user.phoneNumber && city === user.city && registrationYear === user.registrationYear && deliveryOptions === user.deliveryOptions && paymentOptions === user.paymentOptions) {
         return res.status(400).json({ message: "no changes were made" });
@@ -175,17 +185,87 @@ export const donateDrug = async (req, res) => {
 
     try {
         const newDonateDrug = await DonateDrug.create(donated);
-        // const notif = {
-        //     requestdrugId: newRequestDrug._id,
-        //     isRead: false,
-        // }
+        const notif = {
+            donateDrugId: newDonateDrug._id,
+            isRead: false,
+        }
 
-        // console.log("notif", notif)
+        console.log("notif", notif)
 
-        // const newPharmacyNotification = await Notification.create(notif);
+        const newPharmacyNotification = await BuyerNotification.create(notif);
         return res.status(201).json({ newDonateDrug });
     }
     catch (error) {
         return res.status(500).json(error);
+    }
+}
+
+export const buyerOrders = async (req, res) => {
+
+    try {
+        const orders = await Order.find({ customerId: req.params.id }).sort({ createdAt: -1 });
+        const products = await Product.find({ _id: orders.map(order => order.productId) })
+        const pharmacies = await User.find({ _id: products.map(prod => prod.pharmaId) })
+        return res.status(200).json({ success: true, message: "orders fetched successfully", data: { orders, products, pharmacies } })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err);
+    }
+}
+
+export const buyerNotifications = async (req, res) => {
+    try {
+
+        const donatedDrugs = await DonateDrug.find({ _id: req.params.id });
+
+        return res.json({ data: donatedDrugs });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getBuyerNotifications = async (req, res) => {
+    try {
+        // const notifications = await Notification.find({});
+
+        // return res.json({ data: notifications });
+
+        const notifications = await BuyerNotification.find({}).sort({ _id: -1 });
+
+        const donatedDrug = await DonateDrug.find({ _id: notifications.map(notif => notif.donateDrugId) });
+
+        // const users = await User.find({ _id: donatedDrug.map(user => user.userId) });
+
+        return res.json({ data: notifications, donatedDrug });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getBuyerNotification = async (req, res) => {
+    try {
+
+        const notification = await BuyerNotification.find({ _id: req.params.id });
+
+        return res.json({ data: notification });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const updateIsReadNotif = async (req, res) => {
+    const { id } = req.params;
+    const updatedNotif = { isRead: true, _id: id };
+
+    console.log("updated", updatedNotif);
+    console.log("id:", id);
+
+    try {
+        await BuyerNotification.findByIdAndUpdate(id, { isRead: true }, { new: true });
+
+        return res.json(updatedNotif);
+    } catch (error) {
+        return res.status(404).send(`No notif with id: ${id}`);
     }
 }

@@ -109,7 +109,7 @@ export const updateOrderCheckout = async (req, res) => {
         carts?.formData?.map(async (cart, index) => {
             console.log("ejjjkjk", cart)
             const orderdets = await Order.findById(cart);
-            const customerOrders = await Order.find({ customerId: orderdets.customerId })
+            const customerOrders = await Order.find({ customerId: orderdets.customerId, status: { $ne: 1 } })
             // console.log("customerOrders", customerOrders)
 
             const userOrders = [];
@@ -121,6 +121,7 @@ export const updateOrderCheckout = async (req, res) => {
 
             const d = new Date()
             if (!userOrders.includes(d.toLocaleString().split(',')[0])) {
+                console.log("heyyy")
                 const order = await Order.findByIdAndUpdate(cart, { status: 2 });
                 return res.json({ success: true, message: "Order updated successfully", order });
             }
