@@ -1,5 +1,5 @@
 import express from "express";
-import { createCart, deleteOrderItem, getCustomerCart, getCustomerCartUnconfirmed, updateOrderCheckout, getLoggedPharmacyOrders, getLoggedPharmacyOrdersbySearch, updateOrderStatus, updateOrderPrescription, getLoggedPharmacyOrdersToday } from "../controllers/cartController";
+import { createCart, deleteOrderItem, getCustomerCart, getCustomerCartUnconfirmed, updateOrderCheckout, getLoggedPharmacyOrders, getLoggedPharmacyOrdersbySearch, updateOrderStatus, updateOrderPrescription, getLoggedPharmacyOrdersToday, stripePayment } from "../controllers/cartController";
 const router = express.Router();
 
 router.post("/create-cart", createCart);
@@ -12,6 +12,7 @@ router.get("/pharmacy-orders-today/:pharmaId", getLoggedPharmacyOrdersToday);
 router.get("/pharmacy/search-order/:pharmaId/:search", getLoggedPharmacyOrdersbySearch);
 router.patch("/update-cart-status/:id", updateOrderStatus);
 router.patch("/add-prescription", updateOrderPrescription);
+router.post("/stripe/pay", stripePayment);
 
 
 export default router;

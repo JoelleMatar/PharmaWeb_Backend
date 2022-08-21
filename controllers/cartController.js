@@ -5,6 +5,10 @@ import User from "../models/user.js";
 import { ObjectId } from "bson";
 import Logs from "../models/logs.js";
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const stripe = require('stripe')('sk_test_51LYvvbHSfpRXz0HoRhWQOLP1Jfq6YMZf9kZlRhj184vG45N7yGD4ocetc4nYn8CIUDZeAnx7Jiivh4oJfrbSVkRR00alS2vIn6');
+
 export const createCart = async (req, res) => {
     const cart = req.body;
     console.log("cart", cart);
@@ -78,10 +82,42 @@ export const getCustomerCart = async (req, res) => {
     }
 }
 
+export const stripePayment = async (req, res) => {
+    try {
+        const { email, firstName, lastName, phoneNumber, amount } = req.body
+        console.log("req.body", req.body)
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount * 100,
+            currency: 'LBP',
+            // Verify your integration in this guide by including this parameter
+            metadata: { integration_check: 'accept_a_payment' },
+            receipt_email: email,
+
+        });
+
+        return res.json({ 'client_secret': paymentIntent['client_secret'] });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+// export const getCustomerCartUnconfirmed = async (req, res) => {
+//     try {
+
+//         const cart = await Order.find({ customerId: req.params.id, status: 1 });
+
+//         return res.json({ data: cart });
+//     } catch (error) {
+//         res.status(404).json({ message: error.message });
+//     }
+// }
+
 export const getCustomerCartUnconfirmed = async (req, res) => {
     try {
 
-        const cart = await Order.find({ customerId: req.params.id, status: 1 });
+        const cart = await Order.find({ customerId: req.params.id, status: 1 }).sort({pharmaId: 1});
+
+        
 
         return res.json({ data: cart });
     } catch (error) {

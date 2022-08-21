@@ -4,7 +4,7 @@ require("dotenv").config();
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-
+// import stripe from './routes/stripe';
 // Routes import
 import userRouter from "./routes/user.js";
 import productRouter from "./routes/product.js";
@@ -33,3 +33,4 @@ app.use("/user", userRouter);
 app.use("/products", productRouter);
 app.use("/carts", cartRouter);
 app.use("/logs", logsRouter);
+// app.use("/stripe", stripe);

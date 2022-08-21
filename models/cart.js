@@ -10,7 +10,13 @@ const orderSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product' 
   },
+  pharmaId: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User' 
+  },
   quantity: { type: Number, required: true },
+  pharmacyName: { type: String, required: true },
+  pharmacyPaymentOptions: { type: Array, required: true },
   deliverOption: { type: String, required: true },
   totalPrice: { type: Number },
   status: { type: Number},
