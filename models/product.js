@@ -6,6 +6,10 @@ const productSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  prodCatId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+  },
   productName: { type: String, required: true },
   dosage: { type: Array },
   form: { type: Array, required: true },

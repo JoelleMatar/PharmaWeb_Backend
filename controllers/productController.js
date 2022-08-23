@@ -8,17 +8,18 @@ import csv from "csvtojson";
 import csvtojson from "csvtojson";
 import fs from "fs";
 import fastcsv from "fast-csv";
+import Category from "../models/category.js";
 
 export const createProduct = async (req, res) => {
     const post = req.body;
-    console.log("post");
+    console.log("post", post);
     try {
         const prodExist = await Product.findOne({ productName: post.productName, form: post.form });
         if (prodExist) {
             res.status(400).json({ message: "Product already exists" });
         } else {
             const newPost = await Product.create(post);
-            await ListProducts.create(post);
+            // await ListProducts.create(post);
             return res.status(201).json(newPost);
         }
     }
@@ -34,6 +35,50 @@ export const getProducts = async (req, res) => {
         const products = await Product.find({});
 
         return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getCategories = async (req, res) => {
+    try {
+
+        const categories = await Category.find({});
+
+        return res.json({ data: categories });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const getProductsbyCategories = async (req, res) => {
+    try {
+
+        const products = await Product.find({prodCatId: req.params.id});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const createCategories = async (req, res) => {
+    try {
+
+        const categoriesList = [
+            {name: 'Drugs'},
+            {name: 'Personal Hygiene'},
+            {name: 'Food and Beverages'},
+            {name: 'Skin Care Items'},
+            {name: 'Feminine Products'},
+            {name: 'Beauty Items'},
+            {name: 'Seasonal Products'},
+            {name: 'Baby Products'},
+            {name: 'Diet and Nutrition Items'},
+        ]
+        const categories = await Category.create(categoriesList);
+
+        return res.json({ data: categories });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, deleteProduct, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsAscendingbySearch, getProductsAscendingOrder, getProductsbySearch, getProductsDescendingbySearch, getProductsDescendingOrder, getProductsHighPrice, getProductsHighPricebySearch, getProductsLebanon, getProductsLowPrice, getProductsLowPricebySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, updateProductDetails, uploadBulkProduct } from "../controllers/productController";
+import { createCategories, createProduct, deleteProduct, getCategories, getPharmacyNotification, getPharmacyNotifications, getPharmacyProducts, getPharmacyProductsbySearch, getProductbyName, getProductDetails, getProducts, getProductsAscendingbySearch, getProductsAscendingOrder, getProductsbyCategories, getProductsbySearch, getProductsDescendingbySearch, getProductsDescendingOrder, getProductsHighPrice, getProductsHighPricebySearch, getProductsLebanon, getProductsLowPrice, getProductsLowPricebySearch, getRequestedDrugs, getSearchedProductsSuggestions, requestDrug, updateIsReadNotif, updateProductDetails, uploadBulkProduct } from "../controllers/productController";
 const router = express.Router();
 import multer from "multer";
 
@@ -14,7 +14,10 @@ const storage = multer.diskStorage({
 const upload = multer({storage});
 
 router.post("/pharmacy/add-product", createProduct);
+router.post("/pharmacy/add-categories", createCategories);
 router.get("/pharmacy/productsList", getProducts);
+router.get("/pharmacy/categoriesList", getCategories);
+router.get("/pharmacy/productsbyCategory/:id", getProductsbyCategories);
 router.get("/pharmacy/productsList-ascending", getProductsAscendingOrder);
 router.get("/pharmacy/productsList-ascending/:search", getProductsAscendingbySearch);
 router.get("/pharmacy/productsList-descending/:search", getProductsDescendingbySearch);
