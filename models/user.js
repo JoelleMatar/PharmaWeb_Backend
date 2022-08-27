@@ -13,7 +13,8 @@ const userSchema = mongoose.Schema({
   registrationYear: { type: Number },
   deliveryOptions: { type: Array },
   paymentOptions: { type: Array },
-  pharmacyLicense: { type: String }
+  pharmacyLicense: { type: String },
+  maps: { type: String }
 }, { timestamps: true });
 
 var User =  mongoose.model("User", userSchema);

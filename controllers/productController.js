@@ -62,6 +62,17 @@ export const getProductsbyCategories = async (req, res) => {
     }
 }
 
+export const getProductsbyName = async (req, res) => {
+    try {
+        console.log("req.body.name", req.body)
+        const products = await Product.find({productName: req.body.name});
+
+        return res.json({ data: products });
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
 export const createCategories = async (req, res) => {
     try {
 

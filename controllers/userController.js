@@ -65,7 +65,7 @@ export const signUpBuyer = async (req, res) => {
 }
 
 export const signUpPharmacy = async (req, res) => {
-    const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions, pharmacyLicense } = req.body;
+    const { pharmacyName, city, email, password, role, phoneNumber, registrationYear, deliveryOptions, paymentOptions, pharmacyLicense, maps } = req.body;
     const validation = { pharmacyName, city, email, password, role, phoneNumber, registrationYear, pharmacyLicense };
 
     try {
@@ -85,6 +85,7 @@ export const signUpPharmacy = async (req, res) => {
                 registrationYear: registrationYear,
                 deliveryOptions: deliveryOptions,
                 paymentOptions: paymentOptions,
+                maps: maps,
                 role: 1
             };
 
