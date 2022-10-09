@@ -32,7 +32,7 @@ export const createProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
     try {
 
-        const products = await Product.find({});
+        const products = await Product.find({}).sort({ createdAt: -1 });
 
         return res.json({ data: products });
     } catch (error) {
@@ -245,7 +245,7 @@ export const getProductsLebanon = async (req, res) => {
 export const getPharmacyProducts = async (req, res) => {
     try {
 
-        const products = await Product.find({ pharmaId: req.params.id });
+        const products = await Product.find({ pharmaId: req.params.id }).sort({ createdAt: -1 });
         const productsName = products.map(product => product.productName);
 
         const generalInfo = await ListProducts.find({ productName: productsName });
@@ -259,7 +259,7 @@ export const getPharmacyProducts = async (req, res) => {
 
 export const getProductDetails = async (req, res) => {
     try {
-
+        console.log("DETSSSS", req.params)
         const product = await Product.find({ _id: req.params.id });
 
         return res.json({ data: product });
@@ -334,7 +334,7 @@ export const getPharmacyProductsbySearch = async (req, res) => {
                     }
                 ]
             }
-        );
+        ).sort({ createdAt: -1 });
 
         return res.json({ data: products });
     } catch (error) {

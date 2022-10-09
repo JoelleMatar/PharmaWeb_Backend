@@ -84,12 +84,10 @@ export const getCustomerCart = async (req, res) => {
 
 export const stripePayment = async (req, res) => {
     try {
-        const { email, firstName, lastName, phoneNumber, amount } = req.body
-        console.log("req.body", req.body)
+        const { email, amount } = req.body
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amount * 100,
             currency: 'LBP',
-            // Verify your integration in this guide by including this parameter
             metadata: { integration_check: 'accept_a_payment' },
             receipt_email: email,
 
@@ -180,7 +178,7 @@ export const getLoggedPharmacyOrders = async (req, res) => {
     try {
         const products = await Product.find({ pharmaId: req.params.pharmaId });
 
-        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({ createdAt: -1 });
+        const cartPharma = await Order.find({ status: { $ne: 1 }, productId: products.map(prod => prod._id) }).sort({ updatedAt: -1 });
 
         const customers = await User.find({ _id: cartPharma.map(cart => cart.customerId) });
 
